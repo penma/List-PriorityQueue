@@ -152,11 +152,11 @@ __END__
 
 =head1 NAME
 
-Graph::Fastgraph::PriorityList - high performance priority list (pure perl)
+List::PriorityQueue - high performance priority list (pure perl)
 
 =head1 SYNOPSIS
 
- my $prio = new Graph::Fastgraph::PriorityList;
+ my $prio = new List::PriorityQueue;
  $prio->insert("foo", 2);
  $prio->insert("bar", 1);
  $prio->insert("baz", 3);
@@ -167,11 +167,7 @@ Graph::Fastgraph::PriorityList - high performance priority list (pure perl)
 =head1 DESCRIPTION
 
 This module implements a high-performance priority list. It's written in pure
-Perl. This module is a L<POE::Queue::Array> ripoff, but its interface has been
-simplified and the code has been optimized (benchmarks follow).
-
-Currently it's only used by L<Graph::Fastgraph>, but it might be released as a
-standalone library.
+Perl.
 
 Available functions are:
 
@@ -198,21 +194,42 @@ Deletes an item known by the specified payload from the queue.
 Finds the item known by the specified payload, and assigns it the new priority.
 It's optimized to perform better than a delete followed by insert.
 
-=head1 SEE ALSO
+=head1 DIFFERENCES TO POE::QUEUE::ARRAY
 
-L<POE::Queue::Array>
+There are some things I disliked about POE::Queue::Array, which ultimately
+led to the creation of this derivative.
+
+First, it stores data in a package global variable. The author brings up a
+valid argument why this is not bad in this case. However I still was somehow
+not happy with the fact it used a global variable. For example, serializing
+a queue would not work as the actual queue reference only stores numerical
+IDs into the package variable containing all the data, but that one wouldn't
+be saved.
+
+Second, for some operations to be carried out efficiently, you have to carry
+the internal IDs around in your program, else you have to do a full search
+for your element everytime you want to delete or update it. While carrying it
+around is relatively simple, there is no reason why the class itself shouldn't
+manage this and relieve the programmer from this work.
+
+A benchmark with POE::Queue::Array and the described payload-to-ID mapping and
+this module revealed that they are equally fast.
 
 =head1 BUGS
 
 Maybe.
 
+=head1 SEE ALSO
+
+L<POE::Queue::Array>
+
 =head1 AUTHORS & COPYRIGHTS
 
-Being a L<POE::Queue::Array> ripoff, this module is
-Copyright 1998-2007 Rocco Caputo. All rights reserved.
-POE::Queue::Array is free software; you may redistribute it and/or modify it
+Made 2009 by Lars Stoltenow.
+List::PriorityQueue is free software; you may redistribute it and/or modify it
 under the same terms as Perl itself.
 
-Modifications to the module Made 2009 by Lars Stoltenow, license as above.
+POE::Queue::Array is Copyright 1998-2007 Rocco Caputo. All rights reserved.
+Same license.
 
 =cut
