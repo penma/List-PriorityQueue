@@ -23,8 +23,8 @@ sub pop {
 
 sub unchecked_insert {
 	my ($self, $payload, $priority, $lower, $upper) = @_;
-	$lower //= 0;
-	$upper //= scalar(@{$self->{queue}}) - 1;
+	$lower = 0                             unless defined($lower);
+	$upper = scalar(@{$self->{queue}}) - 1 unless defined($upper);
 
 	# first of all, map the payload to the desired priority
 	# run an update if the element already exists
