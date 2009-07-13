@@ -1,0 +1,5 @@
+# to install, do:
+./Build.PL             &&\
+./Build                &&\
+./Build test           &&\
+sudo ./Build install
