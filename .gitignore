@@ -1,3 +1,6 @@
 /Build
 /_build
 /blib
+/List-PriorityQueue-*
+/MANIFEST
+/META.yml
