@@ -178,25 +178,25 @@ Perl.
 
 Available functions are:
 
-=head2 new()
+=head2 B<new>()
 
 Obvious.
 
-=head2 insert(I<$payload>, I<$priority>)
+=head2 B<insert>(I<$payload>, I<$priority>)
 
 Adds the specified payload (anything fitting into a scalar) to the priority
 queue, using the specified priority. Smaller means more important.
 
-=head2 pop()
+=head2 B<pop>()
 
 Removes the most important item (numerically lowest priority) from the queue
 and returns it. If no element is there, returns I<undef>.
 
-=head2 delete(I<$payload>)
+=head2 B<delete>(I<$payload>)
 
 Deletes an item known by the specified payload from the queue.
 
-=head2 update(I<$payload>, I<$new_priority>)
+=head2 B<update>(I<$payload>, I<$new_priority>)
 
 Finds the item known by the specified payload, and assigns it the new priority.
 It's optimized to perform better than a delete followed by insert.
