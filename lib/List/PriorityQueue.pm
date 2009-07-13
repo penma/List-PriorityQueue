@@ -90,6 +90,9 @@ sub insert {
 sub find_payload_pos {
 	my ($self, $payload) = @_;
 	my $priority = $self->{prios}->{$payload};
+	if (!defined($priority)) {
+		return undef;
+	}
 
 	# Find the item with binary search.
 	# Do this until the bounds are crossed, in which case the lower point
@@ -122,6 +125,9 @@ sub find_payload_pos {
 sub delete {
 	my ($self, $payload) = @_;
 	my $pos = $self->find_payload_pos($payload);
+	if (!defined($pos)) {
+		return undef;
+	}
 
 	delete($self->{prios}->{$payload});
 	splice(@{$self->{queue}}, $pos, 1);
