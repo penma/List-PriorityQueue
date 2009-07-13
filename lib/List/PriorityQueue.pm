@@ -27,7 +27,12 @@ sub insert {
 	$upper //= scalar(@{$self->{queue}}) - 1;
 
 	# first of all, map the payload to the desired priority
-	$self->{prios}->{$payload} = $priority;
+	# run an update if the element already exists
+	if (exists($self->{prios}->{$payload})) {
+		goto &update;
+	} else {
+		$self->{prios}->{$payload} = $priority;
+	}
 
 	# And register the payload in the queue. There are a lot of special
 	# cases that can be exploited to save us from doing the relatively
@@ -216,6 +221,12 @@ manage this and relieve the programmer from this work.
 
 A benchmark with POE::Queue::Array and the described payload-to-ID mapping and
 this module revealed that they are equally fast.
+
+=head1 NOTES
+
+When inserting an item that already is in the queue, currently B<update> is
+called for you. You should not rely on this behavior and use B<update>
+directly. Future versions might B<croak()> on this.
 
 =head1 BUGS
 
