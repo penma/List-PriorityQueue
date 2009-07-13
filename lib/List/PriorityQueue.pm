@@ -1,6 +1,6 @@
 package List::PriorityQueue;
 
-our $VERSION = '0.00';
+our $VERSION = '0.01';
 
 use strict;
 use warnings;
