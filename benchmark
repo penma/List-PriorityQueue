@@ -127,7 +127,7 @@ td_tstat();
 # List::PriorityQueue
 # Notes:
 # - Own module, might be cheating here.
-print "Testing List::PriorityQueue\n";
+print "Testing List::PriorityQueue using safe functions\n";
 my $t_lpq = new List::PriorityQueue;
 
 td_reset();
@@ -152,6 +152,38 @@ td_stat("Delete");
 td_start();
 while (1) {
 	my ($payload) = $t_lpq->pop();
+	last if (!defined($payload));
+}
+td_stat("Pop");
+
+td_tstat();
+
+# List::PriorityQueue using the unchecked functions
+print "Testing List::PriorityQueue with unchecked functions\n";
+my $t_lpq2 = new List::PriorityQueue;
+
+td_reset();
+td_start();
+foreach (@dataset_insert) {
+	$t_lpq2->unchecked_insert($_->[0], $_->[1]);
+}
+td_stat("Insert");
+
+td_start();
+foreach (@dataset_update) {
+	$t_lpq2->unchecked_update($_->[0], $_->[1]);
+}
+td_stat("Update");
+
+td_start();
+foreach (@dataset_delete) {
+	$t_lpq2->delete($_);
+}
+td_stat("Delete");
+
+td_start();
+while (1) {
+	my ($payload) = $t_lpq2->pop();
 	last if (!defined($payload));
 }
 td_stat("Pop");

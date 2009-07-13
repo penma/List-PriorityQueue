@@ -8,10 +8,8 @@ use List::PriorityQueue;
 my $q = new List::PriorityQueue;
 
 # try to insert an already existing element.
-# you shouldn't do that anyway and use update instead, but if you suck so
-# much that you cannot, then you at least shouldn't confuse the module with
-# duplicates. - so insert DOES call update if the entry exists, but it
-# could just as well croak.
+# this one only tests the "checked" functions, because the unchecked functions
+# might do anything and you've been warned...
 $q->insert("a", 2);
 $q->insert("a", 5);
 $q->insert("b", 3);

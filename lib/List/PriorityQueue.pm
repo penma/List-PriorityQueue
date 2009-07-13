@@ -21,18 +21,14 @@ sub pop {
 	return shift(@{$self->{queue}});
 }
 
-sub insert {
+sub unchecked_insert {
 	my ($self, $payload, $priority, $lower, $upper) = @_;
 	$lower //= 0;
 	$upper //= scalar(@{$self->{queue}}) - 1;
 
 	# first of all, map the payload to the desired priority
 	# run an update if the element already exists
-	if (exists($self->{prios}->{$payload})) {
-		goto &update;
-	} else {
-		$self->{prios}->{$payload} = $priority;
-	}
+	$self->{prios}->{$payload} = $priority;
 
 	# And register the payload in the queue. There are a lot of special
 	# cases that can be exploited to save us from doing the relatively
@@ -87,7 +83,7 @@ sub insert {
 	splice(@{$self->{queue}}, $lower, 0, $payload);
 }
 
-sub find_payload_pos {
+sub _find_payload_pos {
 	my ($self, $payload) = @_;
 	my $priority = $self->{prios}->{$payload};
 	if (!defined($priority)) {
@@ -124,7 +120,7 @@ sub find_payload_pos {
 
 sub delete {
 	my ($self, $payload) = @_;
-	my $pos = $self->find_payload_pos($payload);
+	my $pos = $self->_find_payload_pos($payload);
 	if (!defined($pos)) {
 		return undef;
 	}
@@ -135,13 +131,9 @@ sub delete {
 	return $pos;
 }
 
-sub update {
+sub unchecked_update {
 	my ($self, $payload, $new_prio) = @_;
 	my $old_prio = $self->{prios}->{$payload};
-	if (!defined($old_prio)) {
-		$self->insert($payload, $new_prio);
-		return;
-	}
 
 	# delete the old item
 	my $old_pos = $self->delete($payload);
@@ -156,8 +148,18 @@ sub update {
 		$upper = $old_pos;
 		$lower = 0;
 	}
-	$self->insert($payload, $new_prio, $lower, $upper);
+	$self->unchecked_insert($payload, $new_prio, $lower, $upper);
 }
+
+sub update {
+	my ($self, $payload, $prio) = @_;
+	if (!defined($self->{prios}->{$payload})) {
+		goto &unchecked_insert;
+	} else {
+		goto &unchecked_update;
+	}
+}
+*insert = \&update;
 
 1;
 
@@ -189,9 +191,16 @@ Available functions are:
 Obvious.
 
 =head2 B<insert>(I<$payload>, I<$priority>)
+=head2 B<update>(I<$payload>, I<$new_priority>)
 
 Adds the specified payload (anything fitting into a scalar) to the priority
 queue, using the specified priority. Smaller means more important.
+
+If the item already exists in the queue, it is assigned the new priority.
+It's optimized to perform better than a delete followed by insert.
+
+These names are actually the same function. The alternative name is provided
+so you can make clear which operation you intended to be executed.
 
 =head2 B<pop>()
 
@@ -202,10 +211,17 @@ and returns it. If no element is there, returns I<undef>.
 
 Deletes an item known by the specified payload from the queue.
 
-=head2 B<update>(I<$payload>, I<$new_priority>)
+=head2 B<unchecked_insert>(I<$payload>, I<$priority>)
+=head2 B<unchecked_update>(I<$payload>, I<$new_priority>)
 
-Finds the item known by the specified payload, and assigns it the new priority.
-It's optimized to perform better than a delete followed by insert.
+These functions are provided as an alternative to the safe (or "checked")
+functions described above. By bypassing some checks, they gain you a speed
+advantage, but if you don't know what you're doing, using these might
+corrupt/confuse the queue.
+
+You can use these if you I<definitely> know that the element doesn't exist
+yet for B<unchecked_insert>, or that the element definitely already exists
+for B<unchecked_update>.
 
 =head1 DIFFERENCES TO POE::QUEUE::ARRAY
 
@@ -227,12 +243,6 @@ manage this and relieve the programmer from this work.
 
 A benchmark with POE::Queue::Array and the described payload-to-ID mapping and
 this module revealed that they are equally fast.
-
-=head1 NOTES
-
-When inserting an item that already is in the queue, currently B<update> is
-called for you. You should not rely on this behavior and use B<update>
-directly. Future versions might B<croak()> on this.
 
 =head1 BUGS
 
