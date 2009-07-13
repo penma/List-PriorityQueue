@@ -191,6 +191,7 @@ Available functions are:
 Obvious.
 
 =head2 B<insert>(I<$payload>, I<$priority>)
+
 =head2 B<update>(I<$payload>, I<$new_priority>)
 
 Adds the specified payload (anything fitting into a scalar) to the priority
@@ -212,6 +213,7 @@ and returns it. If no element is there, returns I<undef>.
 Deletes an item known by the specified payload from the queue.
 
 =head2 B<unchecked_insert>(I<$payload>, I<$priority>)
+
 =head2 B<unchecked_update>(I<$payload>, I<$new_priority>)
 
 These functions are provided as an alternative to the safe (or "checked")
